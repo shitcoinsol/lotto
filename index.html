@@ -1,0 +1,168 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<link href="assets/favicon.ico" rel="icon"/>
+<link href="assets/favicon.ico" rel="apple-touch-icon"/>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>$STACK — Hidden Lottery</title>
+  <style>
+    body {
+      background-color: #000;
+      color: #ccc;
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+      padding: 2rem;
+      text-align: center;
+    }
+    .logo {
+  max-width: 300px;
+  margin-bottom: 1.5rem;
+}
+
+.title {
+      font-size: 2.5rem;
+      color: #00eaff;
+    }
+    .subtitle {
+      font-size: 1.2rem;
+      color: #999;
+      margin-bottom: 2rem;
+    }
+    .button {
+      border: 1px solid #00eaff;
+      padding: 0.75rem 1.5rem;
+      border-radius: 12px;
+      background: none;
+      color: #00eaff;
+      cursor: pointer;
+      margin: 1rem;
+    }
+    .button:disabled {
+      border-color: #444;
+      color: #444;
+      cursor: not-allowed;
+    }
+    .metrics {
+      display: flex;
+      justify-content: center;
+      margin: 2rem 0;
+      font-family: monospace;
+    }
+    .hint-section {
+      margin-top: 3rem;
+    }
+    .footer {
+      margin-top: 4rem;
+      font-size: 0.9rem;
+      color: #777;
+    }
+    .message {
+      margin-top: 1.5rem;
+      color: #ff0080;
+      font-style: italic;
+    }
+  </style>
+  <script>
+    let isWalletConnected = false;
+
+    async function connectWallet() {
+      const message = document.getElementById('wallet-message');
+      const claimButton = document.getElementById('claim-button');
+
+      if (window.solana && window.solana.isPhantom) {
+        try {
+          const resp = await window.solana.connect({ onlyIfTrusted: false });
+          const pubkey = resp.publicKey.toString();
+          message.textContent = `Connected: ${pubkey.slice(0, 4)}...${pubkey.slice(-4)}`;
+          isWalletConnected = true;
+          claimButton.disabled = false;
+        } catch (err) {
+          message.textContent = "Connection rejected.";
+        }
+      } else {
+        message.textContent = "Phantom wallet not detected.";
+      }
+    }
+
+    function showMessage() {
+      const message = document.getElementById('claim-message');
+      const now = new Date();
+      const utcHour = now.getUTCHours();
+
+      if (utcHour === 3) {
+        message.textContent = "The game hasn't started yet. Please check back soon.";
+      } else {
+        message.textContent = "Claiming is Not open Yet.";
+      }
+    }
+
+    function updateCountdown() {
+      const countdownElement = document.getElementById("countdown");
+      const now = new Date();
+
+      let nextNoon = new Date(now);
+      nextNoon.setHours(12, 0, 0, 0);
+
+      if (now >= nextNoon) {
+        nextNoon.setDate(nextNoon.getDate() + 1);
+      }
+
+      const diff = nextNoon - now;
+      const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
+      const m = Math.floor((diff / (1000 * 60)) % 60);
+      const s = Math.floor((diff / 1000) % 60);
+
+      countdownElement.textContent = `${h}h ${m}m ${s}s`;
+    }
+
+    setInterval(updateCountdown, 1000);
+    updateCountdown();
+  </script>
+</head>
+<body>
+  <div class="container">
+    <img src="logo_stack.png" alt="$STACK Logo" class="logo">
+    <div class="subtitle">The Hidden Lottery</div>
+
+    <p>
+      ▸ A jackpot protocol where one wallet is selected every day.<br>
+      ▸ The winner is never told. You must find out yourself.<br>
+      ▸ 10,000 $STACK = 1 entry. More tokens, more chances.
+    </p>
+
+    <button class="button" onclick="connectWallet()">Connect Wallet</button>
+    <div id="wallet-message" class="message"></div>
+
+    <button id="claim-button" class="button" onclick="showMessage()" disabled>I Think It's Me ➤</button>
+    <div id="claim-message" class="message"></div>
+
+    <div class="metrics">
+      <div><strong>Game Start:</strong> <span id="countdown">Loading...</span></div>
+    </div>
+    <div class="metrics">
+      <div><strong>Current Jackpot:</strong> 0.0 SOL</div>
+    </div>
+    <div class="metrics">
+      <div><strong>Tickets in Play:</strong> 0</div>
+    </div>
+
+    <div class="hint-section">
+      <h3>📡 TODAY’S CLUE</h3>
+      <p>↳ Wallet ends with: </p>
+      <p>↳ Pool Status: UNCLAIMED</p>
+    </div>
+
+    <div class="footer">
+      $STACK © 2025 — The Hidden Lottery<br>
+      “Someone wins every day. But not everyone notices.”
+    </div>
+  </div>
+</body>
+</html>
